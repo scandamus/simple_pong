@@ -3,37 +3,28 @@ const canvas = document.getElementById("pongcanvas");
 // 2dの描画コンテキストにアクセスできるように
 // キャンバスに描画するために使うツール
 const ctx = canvas.getContext("2d");
-var state = 1;
-var ball = {
+let state = 1;
+let ball = {
     x: canvas.width / 2,
     y: canvas.height / 2,
-    dx: 2,
-    dy: 2,
+    dx: 1,
+    dy: 1,
     Radius: 10,
 };
 //右
-var paddle1 = {
+let paddle1 = {
     x: (canvas.width - 10),
     y: (canvas.height - 75) / 2,
     Height: 75,
     Width: 10,
 };
 // 左
-var paddle2 = {
+let paddle2 = {
     x: 0,
     y: (canvas.height - 75) / 2,
     Height: 75,
     Width: 10,
 };
-function mouseMoveHandler(e) {
-    // relativeYはマウスの相対的な位置->特定の要素内でのカーソルの位置
-    // e.clientYはマウスの絶対的な位置->Webページの左端からカーソルまで
-    var relativeY = e.clientY - canvas.offsetTop;
-    if (relativeY > 0 && relativeY < canvas.height) {
-        paddle1.y = relativeY - paddle1.Width / 2;
-        paddle2.y = relativeY - paddle2.Width / 2;
-    }
-}
 function drawBall(obj) {
     ctx.beginPath();
     ctx.arc(obj.x, obj.y, obj.Radius, 0, Math.PI * 2);
@@ -83,16 +74,68 @@ function draw() {
         ball.y + ball.dy < ball.Radius) {
         ball.dy = -ball.dy;
     }
+    if (paddle1UpPressed) {
+        paddle1.y -= 7;
+        if (paddle1.y < 0) {
+            paddle1.y = 0;
+        }
+    }
+    if (paddle1DownPressed) {
+        paddle1.y += 7;
+        if (paddle1.y + paddle1.Height > canvas.height) {
+            paddle1.y = canvas.height - paddle1.Height;
+        }
+    }
+    if (paddle2UpPressed) {
+        paddle2.y -= 7;
+        if (paddle2.y < 0) {
+            paddle2.y = 0;
+        }
+    }
+    if (paddle2DownPressed) {
+        paddle2.y += 7;
+        if (paddle2.y + paddle2.Height > canvas.height) {
+            paddle2.y = canvas.height - paddle2.Height;
+        }
+    }
     if (ball.x < ball.Radius || ball.x > canvas.width - ball.Radius) {
         alert('GAME OVER');
-        // document.location.reload();
+        document.location.reload();
         clearInterval(interval);
     }
     ball.x += ball.dx;
     ball.y += ball.dy;
 }
-// document.addEventListener("keydown", keyDownHandler, false);
-// document.addEventListener("keyup", keyUpHandler, false);
-// マウスの動きを検知する
-document.addEventListener('mousemove', mouseMoveHandler, false);
-var interval = setInterval(draw, 10);
+// 押されたとき
+document.addEventListener("keydown", keyDownHandler, false);
+// 離れたとき
+document.addEventListener("keyup", keyUpHandler, false);
+// 右
+let paddle1UpPressed = false;
+let paddle1DownPressed = false;
+// 左
+let paddle2UpPressed = false;
+let paddle2DownPressed = false;
+function keyDownHandler (e) {
+    if (e.key === "ArrowUp") {
+        paddle1UpPressed = true;
+    } else if (e.key === "ArrowDown") {
+        paddle1DownPressed = true;
+    } else if (e.key === "w") {
+        paddle2UpPressed = true;
+    } else if (e.key === "s") {
+        paddle2DownPressed = true;
+    }
+}
+function keyUpHandler (e) {
+    if (e.key === "ArrowUp") {
+        paddle1UpPressed = false;
+    } else if (e.key === "ArrowDown") {
+        paddle1DownPressed = false;
+    } else if (e.key === "w") {
+        paddle2UpPressed = false;
+    } else if (e.key === "s") {
+        paddle2DownPressed = false;
+    }
+}
+let interval = setInterval(draw, 10);
